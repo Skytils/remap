@@ -26,7 +26,7 @@ kotlinVersion("1.6.20")
 dependencies {
     api("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.5.21")
     implementation(kotlin("stdlib"))
-    api("org.cadixdev:lorenz:0.5.0")
+    api("org.cadixdev:lorenz:0.5.8")
     runtimeOnly("net.java.dev.jna:jna:5.10.0") // don't strictly need this but IDEA spams log without
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
