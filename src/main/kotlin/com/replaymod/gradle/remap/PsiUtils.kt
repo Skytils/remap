@@ -56,10 +56,13 @@ internal object PsiUtils {
             ArrayType(array!!.arrayDimensions, getFieldType(array.deepComponentType))
         }
         is PsiClassType -> {
-            val resolved = erasedType.resolve() ?: throw NullPointerException("Failed to resolve type $erasedType")
-            val qualifiedName = resolved.dollarQualifiedName
+            if (erasedType.className == "String") ObjectType("java.lang.String")
+            else {
+                val resolved = erasedType.resolve() ?: throw NullPointerException("Failed to resolve type $erasedType")
+                val qualifiedName = resolved.dollarQualifiedName
                     ?: throw NullPointerException("Type $erasedType has no qualified name.")
-            ObjectType(qualifiedName)
+                ObjectType(qualifiedName)
+            }
         }
         else -> throw IllegalArgumentException("Cannot translate type " + erasedType!!)
     }
