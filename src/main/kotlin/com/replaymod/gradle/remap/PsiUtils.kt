@@ -49,22 +49,21 @@ internal object PsiUtils {
             getType(method.returnType)
     )
 
-    private fun getFieldType(type: PsiType?): FieldType = when (val erasedType = TypeConversionUtil.erasure(type)) {
-        is PsiPrimitiveType -> FieldType.of(erasedType.kind.binaryName)
-        is PsiArrayType -> {
-            val array = erasedType as PsiArrayType?
-            ArrayType(array!!.arrayDimensions, getFieldType(array.deepComponentType))
-        }
-        is PsiClassType -> {
-            if (erasedType.className == "String") ObjectType("java.lang.String")
-            else {
-                val resolved = erasedType.resolve() ?: throw NullPointerException("Failed to resolve type $erasedType")
+    private fun getFieldType(type: PsiType?): FieldType {
+        when (val erasedType = TypeConversionUtil.erasure(type)) {
+            is PsiPrimitiveType -> return FieldType.of(erasedType.kind.binaryName)
+            is PsiArrayType -> {
+                val array = erasedType as PsiArrayType?
+                return ArrayType(array!!.arrayDimensions, getFieldType(array.deepComponentType))
+            }
+            is PsiClassType -> {
+                val resolved = erasedType.resolve() ?: return ObjectType(erasedType.canonicalText)
                 val qualifiedName = resolved.dollarQualifiedName
                     ?: throw NullPointerException("Type $erasedType has no qualified name.")
-                ObjectType(qualifiedName)
+                return ObjectType(qualifiedName)
             }
+            else -> throw IllegalArgumentException("Cannot translate type " + erasedType!!)
         }
-        else -> throw IllegalArgumentException("Cannot translate type " + erasedType!!)
     }
 
     private fun getType(type: PsiType?): Type = if (TypeConversionUtil.isVoidType(type)) {
